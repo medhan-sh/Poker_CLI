@@ -13,7 +13,7 @@ import (
 type stubPlayerStore struct {
 	score    map[string]int
 	winCalls []string
-	league   []Player
+	league   league
 }
 
 func (s *stubPlayerStore) GetPlayerScore(name string) int {
@@ -23,7 +23,7 @@ func (s *stubPlayerStore) GetPlayerScore(name string) int {
 func (s *stubPlayerStore) RecordWin(name string) {
 	s.winCalls = append(s.winCalls, name)
 }
-func (s *stubPlayerStore) GetLeague() []Player {
+func (s *stubPlayerStore) GetLeague() league {
 	return s.league
 }
 
@@ -129,7 +129,7 @@ func assertLeague(t testing.TB, got, want []Player) {
 }
 func getLeagueFromResponse(t testing.TB, body io.Reader) (league []Player) {
 	t.Helper()
-	err := json.NewDecoder(body).Decode(&league)
+	league, err := NewLeague(body)
 
 	if err != nil {
 		t.Fatalf("Unable to parse response from server %q into slice of Player, '%v'", body, err)
