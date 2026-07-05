@@ -1,4 +1,4 @@
-package main
+package poker
 
 import (
 	"encoding/json"
@@ -6,9 +6,9 @@ import (
 	"io"
 )
 
-type league []Player
+type League []Player
 
-func (l league) Find(name string) *Player {
+func (l League) Find(name string) *Player {
 	for i, p := range l {
 		if p.Name == name {
 			return &l[i]

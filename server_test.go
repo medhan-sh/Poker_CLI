@@ -1,4 +1,4 @@
-package main
+package poker
 
 import (
 	"encoding/json"
@@ -13,7 +13,7 @@ import (
 type stubPlayerStore struct {
 	score    map[string]int
 	winCalls []string
-	league   league
+	league   League
 }
 
 func (s *stubPlayerStore) GetPlayerScore(name string) int {
@@ -23,7 +23,7 @@ func (s *stubPlayerStore) GetPlayerScore(name string) int {
 func (s *stubPlayerStore) RecordWin(name string) {
 	s.winCalls = append(s.winCalls, name)
 }
-func (s *stubPlayerStore) GetLeague() league {
+func (s *stubPlayerStore) GetLeague() League {
 	return s.league
 }
 
@@ -44,6 +44,17 @@ func asserStatusCode(t testing.TB, got, want int) {
 	}
 }
 
+func assertPlayerWin(t testing.TB, store *stubPlayerStore, winner string) {
+	t.Helper()
+
+	if len(store.winCalls) != 1 {
+		t.Fatalf("got %d calls to RecordWin want %d", len(store.winCalls), 1)
+	}
+
+	if store.winCalls[0] != winner {
+		t.Errorf("did not store correct winner got %q want %q", store.winCalls[0], winner)
+	}
+}
 func TestGetPlayer(t *testing.T) {
 	store := stubPlayerStore{
 		map[string]int{
@@ -107,12 +118,7 @@ func TestStoreWins(t *testing.T) {
 		server.ServeHTTP(response, request)
 		asserStatusCode(t, response.Code, http.StatusAccepted)
 
-		if len(store.winCalls) != 1 {
-			t.Errorf("Got %d wincalls, wanted %d", len(store.winCalls), 1)
-		}
-		if store.winCalls[0] != player {
-			t.Errorf("did not store correct winner got %s wanted %s", store.winCalls[0], player)
-		}
+		assertPlayerWin(t, &store, player)
 	})
 }
 
@@ -161,7 +167,7 @@ func TestLeague(t *testing.T) {
 		}
 		asserStatusCode(t, response.Code, http.StatusOK)
 	})
-	t.Run("Return league tabl as JSON", func(t *testing.T) {
+	t.Run("Return league table as JSON", func(t *testing.T) {
 		wantedLeague := []Player{
 			{"Cleo", 32},
 			{"Chris", 20},

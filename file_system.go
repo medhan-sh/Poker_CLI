@@ -1,4 +1,4 @@
-package main
+package poker
 
 import (
 	"encoding/json"
@@ -10,10 +10,10 @@ import (
 
 type FileSystemPlayerStore struct {
 	database *json.Encoder
-	league   league
+	league   League
 }
 
-func (f *FileSystemPlayerStore) GetLeague() league {
+func (f *FileSystemPlayerStore) GetLeague() League {
 	sort.Slice(f.league, func(i, j int) bool {
 		return f.league[i].Wins > f.league[j].Wins
 	})
