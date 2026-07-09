@@ -18,8 +18,8 @@ func main() {
 	}
 	defer close()
 
-	fmt.Println("Let's play poker")
-	fmt.Println("Type {Name} wins to record a win")
-	game := poker.NewGame(poker.BlindAlerterfunc(poker.StdOutAlerter), store)
-	poker.NewCLI(os.Stdin, os.Stdout, game).PlayPoker()
+	fmt.Println("Let's play Blackjack!")
+	game := poker.NewBlackjackGame(store, os.Stdout)
+	cli := poker.NewCLI(os.Stdin, os.Stdout, game)
+	cli.PlayBlackjack()
 }

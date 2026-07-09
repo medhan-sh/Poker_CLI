@@ -119,6 +119,42 @@ func TestCLI(t *testing.T) {
 			t.Errorf("expected game to finish with Ruth, got %q", game.FinishedWith)
 		}
 	})
+	t.Run("it prompts the user to enter the number of players and starts the game", func(t *testing.T) {
+		stdout := &bytes.Buffer{}
+		in := strings.NewReader("7\n")
+		game := &GameSpy{}
+
+		cli := poker.NewCLI(in, stdout, game)
+		cli.PlayPoker()
+
+		gotPrompt := stdout.String()
+		wantPrompt := poker.PlayerPrompt
+
+		if gotPrompt != wantPrompt {
+			t.Errorf("got %q, want %q", gotPrompt, wantPrompt)
+		}
+
+		if game.StartedWith != 7 {
+			t.Errorf("wanted Start called with 7 but got %d", game.StartedWith)
+		}
+	})
+	t.Run("it prints an error when non numeric quantity is entered ", func(t *testing.T) {
+		stdout := &bytes.Buffer{}
+		in := strings.NewReader("Pies\n")
+		game := &GameSpy{}
+		cli := poker.NewCLI(in, stdout, game)
+		cli.PlayPoker()
+
+		if game.StartCalled {
+			t.Error("Shouldnt have started ")
+		}
+		gotPrompt := stdout.String()
+		wantPrompt := poker.PlayerPrompt + "you're so silly!"
+		if gotPrompt != wantPrompt {
+			t.Errorf("got %v,want %v", gotPrompt, wantPrompt)
+		}
+
+	})
 
 }
 
@@ -167,9 +203,11 @@ func TestGame_Start(t *testing.T) {
 type GameSpy struct {
 	StartedWith  int
 	FinishedWith string
+	StartCalled  bool
 }
 
 func (g *GameSpy) Start(numberOfPlayers int) {
+	g.StartCalled = true
 	g.StartedWith = numberOfPlayers
 }
 
